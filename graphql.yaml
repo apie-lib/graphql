@@ -1,0 +1,23 @@
+services:
+  Apie\Graphql\RouteDefinitions\GraphqlRouteDefinitionProvider:
+    arguments:
+      - '@Apie\Common\ActionDefinitionProvider'
+    tags: 
+      - name: apie.common.route_definition
+
+  Apie\Graphql\Factories\GraphqlSchemaFactory:
+    arguments:
+      - '@Apie\Common\ActionDefinitionProvider'
+
+  Apie\Graphql\Controllers\GraphqlController:
+    arguments:
+      - '@Apie\Graphql\Factories\GraphqlSchemaFactory'
+      - '@Apie\Core\ContextBuilders\ContextBuilderFactory'
+      - '@Apie\Common\Events\ResponseDispatcher'
+    tags: ['controller.service_arguments']
+  
+  Apie\Graphql\Controllers\GraphqlPlaygroundController:
+    arguments:
+      - '%apie.graphql.base_url%'
+      - '@Apie\Core\BoundedContext\BoundedContextHashmap'
+    tags: ['controller.service_arguments']
