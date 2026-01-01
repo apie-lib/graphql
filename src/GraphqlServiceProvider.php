@@ -63,7 +63,7 @@ class GraphqlServiceProvider extends ServiceProvider
             \Apie\Graphql\Controllers\GraphqlPlaygroundController::class,
             function ($app) {
                 return new \Apie\Graphql\Controllers\GraphqlPlaygroundController(
-                    $this->parseArgument('%apie.graphgl_baseurl', \Apie\Graphql\Controllers\GraphqlPlaygroundController::class, 0),
+                    $this->parseArgument('%apie.graphql.base_url%', \Apie\Graphql\Controllers\GraphqlPlaygroundController::class, 0),
                     $app->make(\Apie\Core\BoundedContext\BoundedContextHashmap::class)
                 );
             }

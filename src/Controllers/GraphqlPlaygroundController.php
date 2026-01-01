@@ -15,7 +15,7 @@ class GraphqlPlaygroundController
         private readonly BoundedContextHashmap $boundedContextHashmap,
         ?string $htmlPath = null
     ) {
-        $this->htmlPath = null === $htmlPath ? __DIR__ . '/../../resources/swagger-ui/index.html' : $htmlPath;
+        $this->htmlPath = null === $htmlPath ? __DIR__ . '/../../resources/playground/index.html' : $htmlPath;
     }
 
     public function __invoke(ServerRequestInterface $request): ResponseInterface
@@ -23,12 +23,11 @@ class GraphqlPlaygroundController
         $boundedContextId = $request->getAttribute('boundedContextId');
         $search = [
             '%%GRAPHQL_ENDPOINT%%',
-            '%%GRAPHQL_AVAILABLE%%',
         ];
         $boundedContext = $this->boundedContextHashmap[$boundedContextId];
         $urls = [
             [
-                'url' => '/' . trim($this->baseUrl, '/') . '/' . $boundedContextId . '/graphql',
+                'url' => '/' . $boundedContextId . '/' . ltrim($this->baseUrl, '/'),
                 'name' => $boundedContextId . '(' . $boundedContext->actions->count() . ' actions, ' . $boundedContext->resources->count() . ' resources)',
             ]
         ];

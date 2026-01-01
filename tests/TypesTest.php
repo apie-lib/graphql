@@ -1,7 +1,6 @@
 <?php
 namespace Apie\Tests\Graphql;
 
-use Apie\Graphql\ExampleClass;
 use Apie\Graphql\Types;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

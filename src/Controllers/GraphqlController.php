@@ -63,10 +63,6 @@ final class GraphqlController
 
     private function parseRequest(ServerRequestInterface $request): array
     {
-        if ($request->getMethod() === 'GET') {
-            return $request->getQueryParams();
-        }
-
         $contentType = $request->getHeaderLine('Content-Type');
 
         if (str_contains($contentType, 'application/json')) {
