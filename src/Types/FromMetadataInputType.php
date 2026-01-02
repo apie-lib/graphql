@@ -3,9 +3,9 @@ namespace Apie\Graphql\Types;
 
 use Apie\Core\Metadata\MetadataInterface;
 use Apie\Graphql\Concerns\CreatesFromMeta;
-use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\InputObjectType;
 
-class FromMetadataType extends ObjectType
+class FromMetadataInputType extends InputObjectType
 {
     use CreatesFromMeta;
 
@@ -25,4 +25,6 @@ class FromMetadataType extends ObjectType
         }
         parent::__construct($config);
     }
+
+
 }

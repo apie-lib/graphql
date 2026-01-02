@@ -23,26 +23,27 @@ class GraphqlPlaygroundController
         $boundedContextId = $request->getAttribute('boundedContextId');
         $search = [
             '%%GRAPHQL_ENDPOINT%%',
+            '%%GRAPHQL_ENDPOINT_OPTIONS%%',
         ];
         $boundedContext = $this->boundedContextHashmap[$boundedContextId];
         $urls = [
             [
-                'url' => '/' . $boundedContextId . '/' . ltrim($this->baseUrl, '/'),
-                'name' => $boundedContextId . '(' . $boundedContext->actions->count() . ' actions, ' . $boundedContext->resources->count() . ' resources)',
+                'endpoint' => '/' . $boundedContextId . '/' . ltrim($this->baseUrl, '/'),
+                'name' => $boundedContextId,
             ]
         ];
         
         foreach ($this->boundedContextHashmap as $availableBoundedContextId => $boundedContext) {
             if ($boundedContextId !== $availableBoundedContextId) {
                 $urls[] = [
-                    'url' => '/' . trim($this->baseUrl, '/') . '/' . $availableBoundedContextId . '/graphql',
-                    'name' => $availableBoundedContextId . '(' . $boundedContext->actions->count() . ' actions, ' . $boundedContext->resources->count() . ' resources)',
+                    'endpoint' => '/' . $availableBoundedContextId . '/' . ltrim($this->baseUrl, '/'),
+                    'name' => $availableBoundedContextId,
                 ];
             }
         }
         $replace = [
-            '/' . trim($this->baseUrl, '/') . '/' . $boundedContextId . '/graphql',
-            json_encode($urls),
+            '/' . $boundedContextId . '/' . ltrim($this->baseUrl, '/'),
+            json_encode($urls, JSON_UNESCAPED_SLASHES),
         ];
 
         $responseBody = str_replace($search, $replace, file_get_contents($this->htmlPath));

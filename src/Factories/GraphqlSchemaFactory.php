@@ -6,6 +6,9 @@ use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
 use Apie\Core\Context\ApieContext;
+use Apie\Core\Datalayers\Search\QuerySearch;
+use Apie\Graphql\TypeResolvers\SearchObjectTypeResolver;
+use Apie\Graphql\Types;
 use Apie\Graphql\Types\SearchObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -38,7 +41,16 @@ class GraphqlSchemaFactory
         foreach ($this->actionDefinitionProvider->provideActionDefinitions($boundedContext, $apieContext) as $actionDefinition) {
             if ($actionDefinition instanceof GetResourceListActionDefinition) {
                 $type = new SearchObjectType($actionDefinition->getResourceName());
-                $fields[$type->name] = $type;
+                $fields[$type->name] = [
+                    'type' => $type,
+                    'args' => [
+                        'filter' => [
+                            'type' => Types::createMeta(new \ReflectionClass(QuerySearch::class)),
+                        ],
+                    ],
+                    'description' => $type->description,
+                    'resolve' => new SearchObjectTypeResolver($actionDefinition->getResourceName()->name),
+                ];
             }
         }
         return new ObjectType([
