@@ -3,7 +3,9 @@ namespace Apie\Graphql\Concerns;
 
 use Apie\Core\Enums\ScalarType;
 use Apie\Core\Metadata\Fields\FieldInterface;
+use Apie\Core\Metadata\ItemListMetadata;
 use Apie\Core\Metadata\MetadataInterface;
+use Apie\Core\Metadata\NullableMetadataInterface;
 use Apie\Graphql\Types;
 use GraphQL\Type\Definition\Type;
 
@@ -11,6 +13,16 @@ trait CreatesFromMeta
 {
     public static function createFromMetadata(MetadataInterface $metadata, bool $nullable = false): Type
     {
+        if ($metadata instanceof ItemListMetadata) {
+            $result = Type::listOf(self::createFromMetadata($metadata->getArrayItemType()));
+            if ($nullable) {
+                return $result;
+            }
+            return Type::nonNull($result);
+        }
+        if ($metadata instanceof NullableMetadataInterface) {
+            $nullable = $nullable || $metadata->allowsNull();
+        }
         $scalarType = $metadata->toScalarType($nullable);
         if ($scalarType === ScalarType::STDCLASS) {
             $result = new self($metadata);
