@@ -6,7 +6,9 @@ use Apie\Core\Lists\ItemHashmap;
 use Apie\Core\Lists\ItemList;
 use Apie\Core\Lists\ItemSet;
 use Apie\Core\Metadata\MetadataFactory;
+use Apie\Core\ValueObjects\DatabaseText;
 use Apie\Fixtures\Entities\Order;
+use Apie\Fixtures\ValueObjects\IsStringValueObjectExample;
 use Apie\Graphql\Types;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\TypeConverter\ReflectionTypeFactory;
@@ -98,6 +100,42 @@ class FromMetadataInputTypeTest extends TestCase
             ItemSet::class,
             'getCreationMetadata',
             true
+        ];
+        yield 'string value object' => [
+            Type::string(),
+            IsStringValueObjectExample::class,
+            'getCreationMetadata',
+            true
+        ];
+        yield 'required string value object' => [
+            Type::nonNull(Type::string()),
+            IsStringValueObjectExample::class,
+            'getCreationMetadata',
+            false
+        ];
+        yield 'union type' => [
+            Type::string(),
+            IsStringValueObjectExample::class . '|' . DatabaseText::class,
+            'getCreationMetadata',
+            true
+        ];
+        yield 'required union type' => [
+            Type::nonNull(Type::string()),
+            IsStringValueObjectExample::class . '|' . DatabaseText::class,
+            'getCreationMetadata',
+            false
+        ];
+        yield 'nullable union type' => [
+            Type::string(),
+            IsStringValueObjectExample::class . '|' . DatabaseText::class . '|null',
+            'getCreationMetadata',
+            true
+        ];
+        yield 'required nullable union type' => [
+            Type::string(),
+            IsStringValueObjectExample::class . '|' . DatabaseText::class . '|null',
+            'getCreationMetadata',
+            false
         ];
         /*yield 'generic map' => [
             Type::mapOf(Types::json()),

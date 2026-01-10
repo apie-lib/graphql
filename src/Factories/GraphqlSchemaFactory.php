@@ -2,14 +2,20 @@
 namespace Apie\Graphql\Factories;
 
 use Apie\Common\ActionDefinitionProvider;
+use Apie\Common\ActionDefinitions\CreateResourceActionDefinition;
+use Apie\Common\ActionDefinitions\DownloadFilesActionDefinition;
+use Apie\Common\ActionDefinitions\GetResourceActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
+use Apie\Common\Actions\CreateObjectAction;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
 use Apie\Core\Context\ApieContext;
 use Apie\Core\Datalayers\Search\QuerySearch;
+use Apie\Graphql\TypeResolvers\ApieCallTypeResolver;
 use Apie\Graphql\TypeResolvers\SearchObjectTypeResolver;
 use Apie\Graphql\Types;
 use Apie\Graphql\Types\SearchObjectType;
+use Apie\HtmlBuilders\ResourceActions\CreateResourceAction;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -24,6 +30,42 @@ class GraphqlSchemaFactory
     {
         return new Schema([
             'query' => $this->createQuery($apieContext),
+            'mutation' => $this->createMutations($apieContext),
+        ]);
+    }
+
+    private function createMutations(ApieContext $apieContext): ObjectType
+    {
+        $fields = [
+        ];
+        $boundedContext = $apieContext->getContext(BoundedContext::class);
+        foreach ($this->actionDefinitionProvider->provideActionDefinitions($boundedContext, $apieContext) as $actionDefinition) {
+            if ($actionDefinition instanceof GetResourceListActionDefinition || $actionDefinition instanceof GetResourceActionDefinition || $actionDefinition instanceof DownloadFilesActionDefinition) {
+                continue;
+            }
+            if ($actionDefinition instanceof CreateResourceActionDefinition) {
+                $typeInput = Types::createMeta($actionDefinition->getResourceName());
+                $type = Types::displayMeta($actionDefinition->getResourceName());
+                $fields['create' . $actionDefinition->getResourceName()->getShortName()] = [
+                    'name' => 'create' . $actionDefinition->getResourceName()->getShortName(),
+                    'type' => $type,
+                    'args' => [
+                        'input' => [
+                            'type' => $typeInput,
+                        ],
+                    ],
+                    'description' => $type->description,
+                    'resolve' => new ApieCallTypeResolver(
+                        CreateObjectAction::class,
+                        $actionDefinition->getBoundedContextId(),
+                        $actionDefinition->getResourceName(),
+                    ),
+                ];
+            }
+        }
+        return new ObjectType([
+            'name' => 'Mutation',
+            'fields' => $fields,
         ]);
     }
 
