@@ -11,6 +11,7 @@ use Apie\Fixtures\Entities\Order;
 use Apie\Fixtures\ValueObjects\IsStringValueObjectExample;
 use Apie\Graphql\Types;
 use Apie\Graphql\Types\FromMetadataInputType;
+use Apie\Graphql\Types\MapOfType;
 use Apie\TypeConverter\ReflectionTypeFactory;
 use Generator;
 use GraphQL\Type\Definition\Type;
@@ -137,11 +138,17 @@ class FromMetadataInputTypeTest extends TestCase
             'getCreationMetadata',
             false
         ];
-        /*yield 'generic map' => [
-            Type::mapOf(Types::json()),
+        yield 'generic map' => [
+            new MapOfType(Type::nonNull(Types::json())),
             ItemHashmap::class,
             'getCreationMetadata',
             true
-        ];*/
+        ];
+        yield 'required generic map' => [
+            Type::nonNull(new MapOfType(Type::nonNull(Types::json()))),
+            ItemHashmap::class,
+            'getCreationMetadata',
+            false
+        ];
     }
 }

@@ -1,0 +1,59 @@
+<?php declare(strict_types=1);
+
+namespace Apie\Graphql\Types;
+
+use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\NamedType;
+use GraphQL\Type\Definition\NullableType;
+use GraphQL\Type\Definition\OutputType;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\Schema;
+
+/**
+ * Graphql mapping for ItemHashmap. 
+ * 
+ * @template-covariant OfType of Type
+ */
+class MapOfType extends Type implements WrappingType, OutputType, NullableType, InputType
+{
+    /**
+     * @var Type|callable
+     *
+     * @phpstan-var OfType|callable(): OfType
+     */
+    private $wrappedType;
+
+    /**
+     * @param Type|callable $type
+     *
+     * @phpstan-param OfType|callable(): OfType $type
+     */
+    public function __construct($type)
+    {
+        $this->wrappedType = $type;
+    }
+
+    public function toString(): string
+    {
+        return '{' . $this->getWrappedType()->toString() . '}';
+    }
+
+    /** @phpstan-return OfType */
+    public function getWrappedType(): Type
+    {
+        return Schema::resolveType($this->wrappedType);
+    }
+
+    public function getInnermostType(): NamedType
+    {
+        $type = $this->getWrappedType();
+        while ($type instanceof WrappingType) {
+            $type = $type->getWrappedType();
+        }
+
+        assert($type instanceof NamedType, 'known because we unwrapped all the way down');
+
+        return $type;
+    }
+}

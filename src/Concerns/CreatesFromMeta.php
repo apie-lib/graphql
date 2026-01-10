@@ -2,17 +2,23 @@
 namespace Apie\Graphql\Concerns;
 
 use Apie\Core\Enums\ScalarType;
+use Apie\Core\Lists\ItemHashmap;
 use Apie\Core\Metadata\Fields\FieldInterface;
+use Apie\Core\Metadata\ItemHashmapMetadata;
 use Apie\Core\Metadata\ItemListMetadata;
 use Apie\Core\Metadata\MetadataInterface;
 use Apie\Core\Metadata\NullableMetadataInterface;
 use Apie\Graphql\Types;
+use Apie\Graphql\Types\MapOfType;
 use GraphQL\Type\Definition\Type;
 
 trait CreatesFromMeta
 {
     public static function createFromMetadata(MetadataInterface $metadata, bool $nullable = false): Type
     {
+        if ($metadata instanceof NullableMetadataInterface) {
+            $nullable = $nullable || $metadata->allowsNull();
+        }
         if ($metadata instanceof ItemListMetadata) {
             $result = Type::listOf(self::createFromMetadata($metadata->getArrayItemType()));
             if ($nullable) {
@@ -20,9 +26,14 @@ trait CreatesFromMeta
             }
             return Type::nonNull($result);
         }
-        if ($metadata instanceof NullableMetadataInterface) {
-            $nullable = $nullable || $metadata->allowsNull();
+        if ($metadata instanceof ItemHashmapMetadata) {
+            $result = new MapOfType(self::createFromMetadata($metadata->getArrayItemType()));
+            if ($nullable) {
+                return $result;
+            }
+            return Type::nonNull($result);
         }
+        
         $scalarType = $metadata->toScalarType($nullable);
         if ($scalarType === ScalarType::STDCLASS) {
             $result = new self($metadata);
