@@ -2,20 +2,22 @@
 
 namespace Apie\Graphql\Types;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NullableType;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 
 /**
  * Graphql mapping for ItemHashmap. 
- * 
- * @template-covariant OfType of Type
  */
-class MapOfType extends Type implements WrappingType, OutputType, NullableType, InputType
+class MapOfType extends ScalarType implements WrappingType, InputType, OutputType, NullableType
 {
     /**
      * @var Type|callable
@@ -32,11 +34,32 @@ class MapOfType extends Type implements WrappingType, OutputType, NullableType, 
     public function __construct($type)
     {
         $this->wrappedType = $type;
+        parent::__construct([
+            'name' => 'MapOf' . (is_callable($type) ? md5(static::class) : $type->toString()),
+            'description' => 'A map/dictionary/hashmap where the keys are strings and the values are of type ' . (is_callable($type) ? '<dynamic>' : $type->toString()),
+        ]);
     }
 
-    public function toString(): string
+    public function serialize($value): mixed
     {
-        return '{' . $this->getWrappedType()->toString() . '}';
+        return $value;
+    }
+
+    public function parseValue($value): mixed
+    {
+        if (!is_iterable($value)) {
+            throw new InvariantViolation('Could not parse value as MapOfType, value is not iterable.');
+        }
+        $res = [];
+        foreach ($value as $key => $item) {
+            $res[$key] = $this->getWrappedType()->parseValue($item);
+        }
+        return $res;
+    }
+
+    public function parseLiteral($valueNode, array $variables = null): mixed
+    {
+        return $valueNode->value;
     }
 
     /** @phpstan-return OfType */

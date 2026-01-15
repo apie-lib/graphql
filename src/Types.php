@@ -6,17 +6,20 @@ use Apie\Core\ContextConstants;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\Graphql\Types\FromMetadataType;
-use Apie\Graphql\Types\JsonType;
-use Apie\Graphql\Types\NullType;
+use GraphQL\Type\Definition\Type;
+use MLL\GraphQLScalars\MixedScalar;
+use MLL\GraphQLScalars\NullScalar;
 
 final class Types
 {
-    private static ?JsonType $json = null;
-    private static ?NullType $null = null;
+    private static ?MixedScalar $json = null;
+    private static ?NullScalar $null = null;
 
     private static array $createMeta = [];
 
     private static array $resultMeta = [];
+
+    private static array $created = [];
 
     /**
      * @codeCoverageIgnore
@@ -31,6 +34,12 @@ final class Types
             ContextConstants::GRAPHQL => 1,
         ]);
     }
+
+    public static function createSingleton(string $typeName, callable $factory): Type
+    {
+        return self::$created[$typeName] ??= $factory(self::apieContext());
+    }
+
     public static function createMeta(\ReflectionClass $class): FromMetadataInputType
     {
         return self::$createMeta[$class->name] ??= new FromMetadataInputType(
@@ -46,14 +55,14 @@ final class Types
         );
     }
 
-    public static function json(): JsonType
+    public static function json(): MixedScalar
     {
-        return self::$json ??= new JsonType();
+        return self::$json ??= new MixedScalar();
     }
 
-    public static function null(): NullType
+    public static function null(): NullScalar
     {
-        return self::$null ??= new NullType();
+        return self::$null ??= new NullScalar();
     }
 
 }
