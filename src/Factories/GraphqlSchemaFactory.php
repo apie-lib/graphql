@@ -6,6 +6,7 @@ use Apie\Common\ActionDefinitions\CreateResourceActionDefinition;
 use Apie\Common\ActionDefinitions\DownloadFilesActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
+use Apie\Common\ActionDefinitions\ReplaceResourceActionDefinition;
 use Apie\Common\Actions\CreateObjectAction;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
@@ -43,7 +44,7 @@ class GraphqlSchemaFactory
             if ($actionDefinition instanceof GetResourceListActionDefinition || $actionDefinition instanceof GetResourceActionDefinition || $actionDefinition instanceof DownloadFilesActionDefinition) {
                 continue;
             }
-            if ($actionDefinition instanceof CreateResourceActionDefinition) {
+            if ($actionDefinition instanceof CreateResourceActionDefinition || $actionDefinition instanceof ReplaceResourceActionDefinition) {
                 $typeInput = Types::createMeta($actionDefinition->getResourceName());
                 $type = Types::displayMeta($actionDefinition->getResourceName());
                 $fields['create' . $actionDefinition->getResourceName()->getShortName()] = [

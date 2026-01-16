@@ -23,6 +23,7 @@ class ApieCallTypeResolver
     {
         $contextVariables = $this->actionClass::getRouteAttributes($this->resourceClass);
         $contextVariables[ContextConstants::APIE_ACTION] = $this->actionClass;
+        $contextVariables[ContextConstants::RAW_CONTENTS] = $args['input'] ?? [];
         if ($this->boundedContextId) {
             $contextVariables[ContextConstants::BOUNDED_CONTEXT_ID] = $this->boundedContextId->toNative();
             $contextVariables[BoundedContextId::class] = $this->boundedContextId;
@@ -30,7 +31,7 @@ class ApieCallTypeResolver
         $context = $context->withMultipleContext($contextVariables);
         $facade = $context->getContext(ApieFacadeInterface::class);
         $action = new $this->actionClass($facade);
-        $response = $action->__invoke($context, $args);
+        $response = $action->__invoke($context, $args['input'] ?? []);
 
         return json_decode(json_encode($response->getResultAsNativeData()), true);
     }
