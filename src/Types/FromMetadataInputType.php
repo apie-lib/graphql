@@ -2,6 +2,7 @@
 namespace Apie\Graphql\Types;
 
 use Apie\Core\Attributes\Description;
+use Apie\Core\Context\ApieContext;
 use Apie\Core\Metadata\MetadataInterface;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\InputObjectType;
@@ -18,6 +19,10 @@ class FromMetadataInputType extends InputObjectType
             'fields' => [
             ],
         ];
+        $options = self::createValueOptions($metadata);
+        if ($options !== null) {
+            $config['values'] = $options;
+        }
         foreach ($metadata->toClass()?->getAttributes(Description::class, ReflectionAttribute::IS_INSTANCEOF) ?? [] as $descriptionAttribute) {
             $description = $descriptionAttribute->newInstance();
             $config['description'] = $description->description;

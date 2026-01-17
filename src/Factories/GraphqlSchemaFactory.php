@@ -16,7 +16,6 @@ use Apie\Graphql\TypeResolvers\ApieCallTypeResolver;
 use Apie\Graphql\TypeResolvers\SearchObjectTypeResolver;
 use Apie\Graphql\Types;
 use Apie\Graphql\Types\SearchObjectType;
-use Apie\HtmlBuilders\ResourceActions\CreateResourceAction;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;

@@ -6,16 +6,14 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NullableType;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 
 /**
- * Graphql mapping for ItemHashmap. 
+ * Graphql mapping for ItemHashmap.
  */
 class MapOfType extends ScalarType implements WrappingType, InputType, OutputType, NullableType
 {

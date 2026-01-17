@@ -15,11 +15,29 @@ use Apie\Graphql\Types;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\Graphql\Types\MapOfType;
 use Apie\TypeConverter\ReflectionTypeFactory;
+use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Upload\UploadType;
+use Psr\Http\Message\UploadedFileInterface;
+use ReflectionClass;
 
 trait CreatesFromMeta
 {
+    private static function createValueOptions(MetadataInterface $metadata): ?array
+    {
+        $options = $metadata->getValueOptions(new ApieContext());
+        if ($options === null) {
+            return null;
+        }
+        $enumValues = [];
+        foreach ($options as $option) {
+            $enumValues[$option->name] = ['value' => $option->value, 'description' => $option->description];
+        }
+        return $enumValues;
+    }
+
     public static function createFromMetadata(MetadataInterface $metadata, bool $nullable = false): Type
     {
         if ($metadata instanceof NullableMetadataInterface) {
@@ -32,10 +50,10 @@ trait CreatesFromMeta
                 $name = 'UnionOf' . md5(static::class . $metadata->getDisplayName());
                 $result = Types::createSingleton(
                     $name,
-                    fn() => new UnionType([
+                    fn () => new UnionType([
                         'name' => $name,
                         'types' => array_map(
-                            fn(MetadataInterface $meta) => self::createFromMetadata($meta),
+                            fn (MetadataInterface $meta) => self::createFromMetadata($meta),
                             $metaWithoutNull->getTypes()
                         ),
                     ])
@@ -45,7 +63,7 @@ trait CreatesFromMeta
                 }
                 return Type::nonNull($result);
             }
-           $metadata = $metaWithoutNull;
+            $metadata = $metaWithoutNull;
         }
 
 
@@ -63,14 +81,24 @@ trait CreatesFromMeta
             }
             return Type::nonNull($result);
         }
-        
+        $class = $metadata->toClass();
+        if ($class && in_array(UploadedFileInterface::class, $class->getInterfaceNames())) {
+            if (in_array(InputType::class, (new ReflectionClass(static::class))->getInterfaceNames())) {
+                return Types::createSingleton($class->getShortName() . '_create', function () use ($class) {
+                    return new UploadType(['name' => $class->getShortName() . '_create']);
+                });
+            }
+            return Types::createSingleton($class->getShortName(), function () use ($class) {
+                return new StringType(['name' => $class->getShortName(), 'description' => 'URL to download the file']);
+            });
+        }
         
         $scalarType = $metadata->toScalarType($nullable);
         if ($scalarType === ScalarType::STDCLASS) {
             $result = new self($metadata);
             $result = Types::createSingleton(
                 $result->name,
-                fn() => $result
+                fn () => $result
             );
             if ($nullable) {
                 return $result;

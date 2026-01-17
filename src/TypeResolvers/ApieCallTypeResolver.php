@@ -17,7 +17,7 @@ class ApieCallTypeResolver
         private readonly string $actionClass,
         private readonly ?BoundedContextId $boundedContextId = null,
         private readonly ?ReflectionClass $resourceClass = null,
-    ){
+    ) {
     }
     public function __invoke(ApieContext $context, array $args): array
     {

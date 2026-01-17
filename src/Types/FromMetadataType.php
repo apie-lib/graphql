@@ -16,6 +16,11 @@ class FromMetadataType extends ObjectType
             'fields' => [
             ],
         ];
+        $options = self::createValueOptions($metadata);
+        if ($options !== null) {
+            $config['values'] = $options;
+        }
+
         foreach ($metadata->getHashmap() as $name => $field) {
             if ($field->isField()) {
                 $config['fields'][$name] = [
