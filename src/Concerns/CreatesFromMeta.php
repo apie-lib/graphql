@@ -15,6 +15,7 @@ use Apie\Graphql\Types;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\Graphql\Types\MapOfType;
 use Apie\TypeConverter\ReflectionTypeFactory;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
@@ -64,6 +65,21 @@ trait CreatesFromMeta
                 return Type::nonNull($result);
             }
             $metadata = $metaWithoutNull;
+        }
+
+        $class = $metadata->toClass();
+        $options = self::createValueOptions($metadata);
+        if ($options !== null && $class) {
+            $result = Types::createSingleton($class->getShortName(), function () use ($class, $options) {
+                return new EnumType([
+                    'name' => $class->getShortName(),
+                    'values' => $options,
+                ]);
+            });
+            if ($nullable) {
+                return $result;
+            }
+            return Type::nonNull($result);
         }
 
 

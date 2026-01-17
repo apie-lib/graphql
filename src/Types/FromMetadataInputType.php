@@ -19,10 +19,7 @@ class FromMetadataInputType extends InputObjectType
             'fields' => [
             ],
         ];
-        $options = self::createValueOptions($metadata);
-        if ($options !== null) {
-            $config['values'] = $options;
-        }
+        
         foreach ($metadata->toClass()?->getAttributes(Description::class, ReflectionAttribute::IS_INSTANCEOF) ?? [] as $descriptionAttribute) {
             $description = $descriptionAttribute->newInstance();
             $config['description'] = $description->description;
