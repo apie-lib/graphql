@@ -2,7 +2,6 @@
 namespace Apie\Graphql\Types;
 
 use Apie\Core\Attributes\Description;
-use Apie\Core\Context\ApieContext;
 use Apie\Core\Metadata\MetadataInterface;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\InputObjectType;

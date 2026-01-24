@@ -86,6 +86,9 @@ class GraphqlSchemaFactory
                 $fields[$type->name] = [
                     'type' => $type,
                     'args' => [
+                        'id' => [
+                            'type' => Types::fromId($actionDefinition->getResourceName()),
+                        ],
                         'filter' => [
                             'type' => Types::createMeta(new \ReflectionClass(QuerySearch::class)),
                         ],

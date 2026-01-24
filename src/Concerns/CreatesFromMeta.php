@@ -98,14 +98,17 @@ trait CreatesFromMeta
             return Type::nonNull($result);
         }
         $class = $metadata->toClass();
-        if ($class && in_array(UploadedFileInterface::class, $class->getInterfaceNames())) {
+        if ($class && in_array(UploadedFileInterface::class, [$class->name, ...$class->getInterfaceNames()])) {
             if (in_array(InputType::class, (new ReflectionClass(static::class))->getInterfaceNames())) {
                 return Types::createSingleton($class->getShortName() . '_create', function () use ($class) {
                     return new UploadType(['name' => $class->getShortName() . '_create']);
                 });
             }
             return Types::createSingleton($class->getShortName(), function () use ($class) {
-                return new StringType(['name' => $class->getShortName(), 'description' => 'URL to download the file']);
+                return new StringType([
+                    'name' => $class->getShortName(),
+                    'description' => 'URL to download the file',
+                ]);
             });
         }
         

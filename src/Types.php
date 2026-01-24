@@ -6,6 +6,7 @@ use Apie\Core\ContextConstants;
 use Apie\Core\Metadata\MetadataFactory;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\Graphql\Types\FromMetadataType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use MLL\GraphQLScalars\MixedScalar;
 use MLL\GraphQLScalars\NullScalar;
@@ -46,6 +47,16 @@ final class Types
             MetadataFactory::getCreationMetadata($class, self::apieContext()),
             '_create'
         );
+    }
+
+    public static function fromId(\ReflectionClass $class): Type
+    {
+        $meta = MetadataFactory::getResultMetadata($class, self::apieContext());
+        $type = FromMetadataType::createFromField($meta->getHashmap()['id']);
+        if ($type instanceof NonNull) {
+            return $type->getWrappedType();
+        }
+        return $type;
     }
 
     public static function displayMeta(\ReflectionClass $class): FromMetadataType

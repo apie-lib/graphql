@@ -9,6 +9,16 @@ services:
     arguments:
       - '@Apie\Common\ActionDefinitionProvider'
 
+  Apie\Graphql\Controllers\DownloadFileController:
+    arguments:
+      - '@Apie\Core\FileStorage\ChainedFileStorage'
+      - '@Apie\Graphql\Factories\JWKForFileDownloadFactory'
+    tags: ['controller.service_arguments']
+
+  Apie\Graphql\Factories\JWKForFileDownloadFactory:
+    arguments:
+      - '%kernel.cache_dir%/.jwks/graphql_file_download.json'
+
   Apie\Graphql\Controllers\GraphqlController:
     arguments:
       - '@Apie\Graphql\Factories\GraphqlSchemaFactory'
