@@ -15,8 +15,11 @@ final class GraphqlRouteDefinitionProvider implements RouteDefinitionProviderInt
         $routes[$definition->getOperationId()] = $definition;
         $definition = new GraphqlRouteDefinition($boundedContext->getId());
         $routes[$definition->getOperationId()] = $definition;
-        $definition = new DownloadFileRouteDefinition($boundedContext->getId());
-        $routes[$definition->getOperationId()] = $definition;
+        foreach ($boundedContext->resources as $resource) {
+            $definition = new DownloadFileRouteDefinition($resource, $boundedContext->getId());
+            $routes[$definition->getOperationId()] = $definition;
+        }
+        
         return new ActionHashmap($routes);
     }
 }

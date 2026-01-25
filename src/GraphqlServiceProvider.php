@@ -42,6 +42,25 @@ class GraphqlServiceProvider extends ServiceProvider
             }
         );
         $this->app->singleton(
+            \Apie\Graphql\Controllers\DownloadFileController::class,
+            function ($app) {
+                return new \Apie\Graphql\Controllers\DownloadFileController(
+                    $app->make(\Apie\Core\ContextBuilders\ContextBuilderFactory::class),
+                    $app->make('apie'),
+                    $app->make(\Apie\Serializer\EncoderHashmap::class),
+                    $app->make(\Apie\Common\Events\ResponseDispatcher::class)
+                );
+            }
+        );
+        \Apie\ServiceProviderGenerator\TagMap::register(
+            $this->app,
+            \Apie\Graphql\Controllers\DownloadFileController::class,
+            array(
+              0 => 'controller.service_arguments',
+            )
+        );
+        $this->app->tag([\Apie\Graphql\Controllers\DownloadFileController::class], 'controller.service_arguments');
+        $this->app->singleton(
             \Apie\Graphql\Controllers\GraphqlController::class,
             function ($app) {
                 return new \Apie\Graphql\Controllers\GraphqlController(
