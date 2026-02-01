@@ -8,6 +8,7 @@ use Apie\Common\Events\ResponseDispatcher;
 use Apie\Common\IntegrationTestLogger;
 use Apie\Core\ContextBuilders\ContextBuilderFactory;
 use Apie\Core\ContextConstants;
+use Apie\Core\ValueObjects\Utils;
 use Apie\Graphql\Factories\GraphqlSchemaFactory;
 use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
@@ -45,7 +46,13 @@ final class GraphqlController
                 public function handle(ServerRequestInterface $request): ResponseInterface
                 {
                     $payload = $this->parseRequest($request);
-                    $context = $this->contextBuilderFactory->createFromRequest($request, [ContextConstants::GRAPHQL => true]);
+                    $context = $this->contextBuilderFactory->createFromRequest(
+                        $request,
+                        [
+                            ContextConstants::GRAPHQL => true,
+                            ContextConstants::RAW_CONTENTS => $payload,
+                        ]
+                    );
                     try {
                         $result = GraphQL::executeQuery(
                             schema: $this->schemaFactory->createSchema($context),
@@ -79,13 +86,18 @@ final class GraphqlController
                 private function parseRequest(ServerRequestInterface $request): array
                 {
                     $contentType = $request->getHeaderLine('Content-Type');
+                    $parsedBody = $request->getParsedBody();
+                    
+                    if (!empty($parsedBody)) {
+                        return Utils::toArray($parsedBody);
+                    }
 
                     if (str_contains($contentType, 'application/json')) {
                         $raw = (string) $request->getBody();
-                        return json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+                        return Utils::toArray(json_decode($raw, true, 512, JSON_THROW_ON_ERROR));
                     }
 
-                    return $request->getParsedBody() ?? [];
+                    return [];
                 }
             }
         );
