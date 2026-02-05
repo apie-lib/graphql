@@ -17,9 +17,10 @@ class ApieCallTypeResolver
         private readonly string $actionClass,
         private readonly ?BoundedContextId $boundedContextId = null,
         private readonly ?ReflectionClass $resourceClass = null,
+        private readonly bool $setResourceId = false,
     ) {
     }
-    public function __invoke(ApieContext $context, array $args): array
+    public function __invoke(ApieContext $context, array $args): array | bool
     {
         $contextVariables = $this->actionClass::getRouteAttributes($this->resourceClass);
         $contextVariables[ContextConstants::APIE_ACTION] = $this->actionClass;
@@ -27,6 +28,9 @@ class ApieCallTypeResolver
         if ($this->boundedContextId) {
             $contextVariables[ContextConstants::BOUNDED_CONTEXT_ID] = $this->boundedContextId->toNative();
             $contextVariables[BoundedContextId::class] = $this->boundedContextId;
+        }
+        if ($this->setResourceId && isset($args['id'])) {
+            $contextVariables[ContextConstants::RESOURCE_ID] = $args['id'];
         }
         $context = $context->withMultipleContext($contextVariables);
         $facade = $context->getContext(ApieFacadeInterface::class);

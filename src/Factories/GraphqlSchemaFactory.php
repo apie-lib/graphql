@@ -6,8 +6,10 @@ use Apie\Common\ActionDefinitions\CreateResourceActionDefinition;
 use Apie\Common\ActionDefinitions\DownloadFilesActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
+use Apie\Common\ActionDefinitions\RemoveResourceActionDefinition;
 use Apie\Common\ActionDefinitions\ReplaceResourceActionDefinition;
 use Apie\Common\Actions\CreateObjectAction;
+use Apie\Common\Actions\RemoveObjectAction;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
 use Apie\Core\Context\ApieContext;
@@ -59,6 +61,24 @@ class GraphqlSchemaFactory
                         CreateObjectAction::class,
                         $actionDefinition->getBoundedContextId(),
                         $actionDefinition->getResourceName(),
+                    ),
+                ];
+            }
+            if ($actionDefinition instanceof RemoveResourceActionDefinition) {
+                $fields['remove' . $actionDefinition->getResourceName()->getShortName()] = [
+                    'name' => 'remove' . $actionDefinition->getResourceName()->getShortName(),
+                    'type' => Type::boolean(),
+                    'args' => [
+                        'id' => [
+                            'type' => Types::fromId($actionDefinition->getResourceName()),
+                        ],
+                    ],
+                    'description' => 'Remove a ' . $actionDefinition->getResourceName()->getShortName() . ' by id',
+                    'resolve' => new ApieCallTypeResolver(
+                        RemoveObjectAction::class,
+                        $actionDefinition->getBoundedContextId(),
+                        $actionDefinition->getResourceName(),
+                        true
                     ),
                 ];
             }
