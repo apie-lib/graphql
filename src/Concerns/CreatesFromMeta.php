@@ -153,6 +153,7 @@ trait CreatesFromMeta
         $scalar = ScalarType::createFromReflectionType($type, $nullable);
         
         if ($class !== null && in_array($scalar, [ScalarType::STDCLASS, ScalarType::MIXED], true)) {
+            // TODO: how to handle getModificationMetadata here? We don't know if we are creating or modifying an object.
             $method = static::class === FromMetadataInputType::class ? 'getCreationMetadata' : 'getResultMetadata';
             return self::createFromMetadata(
                 MetadataFactory::getMetadataStrategyForType(

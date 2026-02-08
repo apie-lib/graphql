@@ -6,9 +6,11 @@ use Apie\Common\ActionDefinitions\CreateResourceActionDefinition;
 use Apie\Common\ActionDefinitions\DownloadFilesActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceActionDefinition;
 use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
+use Apie\Common\ActionDefinitions\ModifyResourceActionDefinition;
 use Apie\Common\ActionDefinitions\RemoveResourceActionDefinition;
 use Apie\Common\ActionDefinitions\ReplaceResourceActionDefinition;
 use Apie\Common\Actions\CreateObjectAction;
+use Apie\Common\Actions\ModifyObjectAction;
 use Apie\Common\Actions\RemoveObjectAction;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
@@ -76,6 +78,29 @@ class GraphqlSchemaFactory
                     'description' => 'Remove a ' . $actionDefinition->getResourceName()->getShortName() . ' by id',
                     'resolve' => new ApieCallTypeResolver(
                         RemoveObjectAction::class,
+                        $actionDefinition->getBoundedContextId(),
+                        $actionDefinition->getResourceName(),
+                        true
+                    ),
+                ];
+            }
+            if ($actionDefinition instanceof ModifyResourceActionDefinition) {
+                $typeInput = Types::modifyMeta($actionDefinition->getResourceName());
+                $type = Types::displayMeta($actionDefinition->getResourceName());
+                $fields['modify' . $actionDefinition->getResourceName()->getShortName()] = [
+                    'name' => 'modify' . $actionDefinition->getResourceName()->getShortName(),
+                    'type' => $type,
+                    'args' => [
+                        'id' => [
+                            'type' => Types::fromId($actionDefinition->getResourceName()),
+                        ],
+                        'input' => [
+                            'type' => $typeInput
+                        ]
+                    ],
+                    'description' => 'Modifies a single ' . $actionDefinition->getResourceName()->getShortName() . ' by id',
+                    'resolve' => new ApieCallTypeResolver(
+                        ModifyObjectAction::class,
                         $actionDefinition->getBoundedContextId(),
                         $actionDefinition->getResourceName(),
                         true

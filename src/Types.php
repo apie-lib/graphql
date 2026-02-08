@@ -18,6 +18,8 @@ final class Types
 
     private static array $createMeta = [];
 
+    private static array $modifyMeta = [];
+
     private static array $resultMeta = [];
 
     private static array $created = [];
@@ -46,6 +48,14 @@ final class Types
         return self::$createMeta[$class->name] ??= new FromMetadataInputType(
             MetadataFactory::getCreationMetadata($class, self::apieContext()),
             '_create'
+        );
+    }
+
+    public static function modifyMeta(\ReflectionClass $class): FromMetadataInputType
+    {
+        return self::$modifyMeta[$class->name] ??= new FromMetadataInputType(
+            MetadataFactory::getModificationMetadata($class, self::apieContext()),
+            '_modify'
         );
     }
 

@@ -21,7 +21,8 @@ class FromMetadataInputType extends InputObjectType
         
         foreach ($metadata->toClass()?->getAttributes(Description::class, ReflectionAttribute::IS_INSTANCEOF) ?? [] as $descriptionAttribute) {
             $description = $descriptionAttribute->newInstance();
-            $config['description'] = $description->description;
+            $config['description'] ??= '';
+            $config['description'] .= $description->description;
         }
         foreach ($metadata->getHashmap() as $name => $field) {
             if ($field->isField()) {

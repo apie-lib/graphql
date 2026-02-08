@@ -1,9 +1,11 @@
 <?php
 namespace Apie\Graphql\Types;
 
+use Apie\Core\Attributes\Description;
 use Apie\Core\Metadata\MetadataInterface;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\ObjectType;
+use ReflectionAttribute;
 
 class FromMetadataType extends ObjectType
 {
@@ -16,6 +18,12 @@ class FromMetadataType extends ObjectType
             'fields' => [
             ],
         ];
+
+        foreach ($metadata->toClass()?->getAttributes(Description::class, ReflectionAttribute::IS_INSTANCEOF) ?? [] as $descriptionAttribute) {
+            $description = $descriptionAttribute->newInstance();
+            $config['description'] ??= '';
+            $config['description'] .= $description->description;
+        }
 
         foreach ($metadata->getHashmap() as $name => $field) {
             if ($field->isField()) {
