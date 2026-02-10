@@ -20,6 +20,8 @@ final class Types
 
     private static array $modifyMeta = [];
 
+    private static array $methodCallMeta = [];
+
     private static array $resultMeta = [];
 
     private static array $created = [];
@@ -50,6 +52,16 @@ final class Types
             '_create'
         );
     }
+
+    public static function methodCallMeta(\ReflectionMethod $method): FromMetadataInputType
+    {
+        $key = $method->getDeclaringClass()->name . '::' . $method->name;
+        return self::$methodCallMeta[$key] ??= new FromMetadataInputType(
+            MetadataFactory::getMethodMetadata($method, self::apieContext()),
+            'Run' . ucfirst($method->name)
+        );
+    }
+
 
     public static function modifyMeta(\ReflectionClass $class): FromMetadataInputType
     {

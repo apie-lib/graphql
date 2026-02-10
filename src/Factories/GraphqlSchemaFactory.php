@@ -9,9 +9,11 @@ use Apie\Common\ActionDefinitions\GetResourceListActionDefinition;
 use Apie\Common\ActionDefinitions\ModifyResourceActionDefinition;
 use Apie\Common\ActionDefinitions\RemoveResourceActionDefinition;
 use Apie\Common\ActionDefinitions\ReplaceResourceActionDefinition;
+use Apie\Common\ActionDefinitions\RunResourceMethodDefinition;
 use Apie\Common\Actions\CreateObjectAction;
 use Apie\Common\Actions\ModifyObjectAction;
 use Apie\Common\Actions\RemoveObjectAction;
+use Apie\Common\Actions\RunItemMethodAction;
 use Apie\Core\ApieLib;
 use Apie\Core\BoundedContext\BoundedContext;
 use Apie\Core\Context\ApieContext;
@@ -80,7 +82,7 @@ class GraphqlSchemaFactory
                         RemoveObjectAction::class,
                         $actionDefinition->getBoundedContextId(),
                         $actionDefinition->getResourceName(),
-                        true
+                        setResourceId: true
                     ),
                 ];
             }
@@ -103,7 +105,40 @@ class GraphqlSchemaFactory
                         ModifyObjectAction::class,
                         $actionDefinition->getBoundedContextId(),
                         $actionDefinition->getResourceName(),
-                        true
+                        setResourceId: true
+                    ),
+                ];
+            }
+            if ($actionDefinition instanceof RunResourceMethodDefinition) {
+                $method = $actionDefinition->getMethod();
+                $typeInput = Types::methodCallMeta($method);
+                $type = Types::displayMeta($actionDefinition->getResourceName());
+
+                $args = [
+                        'id' => [
+                            'type' => Types::fromId($actionDefinition->getResourceName()),
+                        ],
+                        'input' => [
+                            'type' => $typeInput
+                        ]
+                    ];
+                $description = 'Runs ' . $method->name . ' for a ' . $actionDefinition->getResourceName()->getShortName() . ' by id';
+                if ($method->isStatic()) {
+                    unset($args['id']);
+                    $description = 'Runs ' . $method->name . ' for ' . $actionDefinition->getResourceName()->getShortName();
+                }
+
+                $fields['run' . $actionDefinition->getResourceName()->getShortName() . ucfirst($method->name)] = [
+                    'name' => 'run' . $actionDefinition->getResourceName()->getShortName() . ucfirst($method->name),
+                    'type' => $type,
+                    'args' => $args,
+                    'description' => $description,
+                    'resolve' => new ApieCallTypeResolver(
+                        RunItemMethodAction::class,
+                        $actionDefinition->getBoundedContextId(),
+                        $actionDefinition->getResourceName(),
+                        $actionDefinition->getMethod(),
+                        !$method->isStatic()
                     ),
                 ];
             }

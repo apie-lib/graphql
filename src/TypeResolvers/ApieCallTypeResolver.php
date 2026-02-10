@@ -7,6 +7,7 @@ use Apie\Core\BoundedContext\BoundedContextId;
 use Apie\Core\Context\ApieContext;
 use Apie\Core\ContextConstants;
 use ReflectionClass;
+use ReflectionMethod;
 
 class ApieCallTypeResolver
 {
@@ -17,12 +18,13 @@ class ApieCallTypeResolver
         private readonly string $actionClass,
         private readonly ?BoundedContextId $boundedContextId = null,
         private readonly ?ReflectionClass $resourceClass = null,
+        private readonly ?ReflectionMethod $method = null,
         private readonly bool $setResourceId = false,
     ) {
     }
     public function __invoke(ApieContext $context, array $args): array | bool
     {
-        $contextVariables = $this->actionClass::getRouteAttributes($this->resourceClass);
+        $contextVariables = $this->actionClass::getRouteAttributes($this->resourceClass, $this->method);
         $contextVariables[ContextConstants::APIE_ACTION] = $this->actionClass;
         $contextVariables[ContextConstants::RAW_CONTENTS] = $args['input'] ?? [];
         if ($this->boundedContextId) {
