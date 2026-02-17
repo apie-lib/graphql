@@ -14,7 +14,7 @@ class GraphqlServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\Graphql\RouteDefinitions\GraphqlRouteDefinitionProvider::class,
             function ($app) {
                 return new \Apie\Graphql\RouteDefinitions\GraphqlRouteDefinitionProvider(
@@ -33,7 +33,7 @@ class GraphqlServiceProvider extends ServiceProvider
             )
         );
         $this->app->tag([\Apie\Graphql\RouteDefinitions\GraphqlRouteDefinitionProvider::class], 'apie.common.route_definition');
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\Graphql\Factories\GraphqlSchemaFactory::class,
             function ($app) {
                 return new \Apie\Graphql\Factories\GraphqlSchemaFactory(
@@ -41,7 +41,7 @@ class GraphqlServiceProvider extends ServiceProvider
                 );
             }
         );
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\Graphql\Controllers\DownloadFileController::class,
             function ($app) {
                 return new \Apie\Graphql\Controllers\DownloadFileController(
@@ -60,7 +60,7 @@ class GraphqlServiceProvider extends ServiceProvider
             )
         );
         $this->app->tag([\Apie\Graphql\Controllers\DownloadFileController::class], 'controller.service_arguments');
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\Graphql\Controllers\GraphqlController::class,
             function ($app) {
                 return new \Apie\Graphql\Controllers\GraphqlController(
@@ -78,7 +78,7 @@ class GraphqlServiceProvider extends ServiceProvider
             )
         );
         $this->app->tag([\Apie\Graphql\Controllers\GraphqlController::class], 'controller.service_arguments');
-        $this->app->singleton(
+        $this->registerSingleton(
             \Apie\Graphql\Controllers\GraphqlPlaygroundController::class,
             function ($app) {
                 return new \Apie\Graphql\Controllers\GraphqlPlaygroundController(
