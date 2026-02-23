@@ -92,6 +92,7 @@ trait CreatesFromMeta
         }
         if ($metadata instanceof ItemHashmapMetadata) {
             $result = new MapOfType(self::createFromMetadata($metadata->getArrayItemType()));
+            $result = Types::createSingleton($result->name, fn () => $result);
             if ($nullable) {
                 return $result;
             }
