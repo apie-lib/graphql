@@ -3,6 +3,7 @@ namespace Apie\Graphql\Types;
 
 use Apie\Core\Attributes\Description;
 use Apie\Core\Metadata\MetadataInterface;
+use Apie\Core\ValueObjects\Utils;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\ObjectType;
 use ReflectionAttribute;
@@ -13,8 +14,10 @@ class FromMetadataType extends ObjectType
 
     public function __construct(MetadataInterface $metadata, string $suffix = '')
     {
+        $class = $metadata->toClass();
+        $name = $class ? Utils::getDisplayNameForValueObject($class) : $metadata->toScalarType()->value;
         $config = [
-            'name' => ($metadata->toClass()?->getShortName() ?? $metadata->toScalarType()->value) . $suffix,
+            'name' => $name . $suffix,
             'fields' => [
             ],
         ];

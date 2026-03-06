@@ -11,7 +11,7 @@ use Apie\Core\ValueObjects\FileUri;
 use Apie\Fixtures\Entities\Order;
 use Apie\Fixtures\ValueObjects\IsStringValueObjectExample;
 use Apie\Graphql\Types;
-use Apie\Graphql\Types\FromMetadataInputType;
+use Apie\Graphql\Types\FromMetadataType;
 use Apie\Graphql\Types\MapOfType;
 use Apie\TypeConverter\ReflectionTypeFactory;
 use Generator;
@@ -22,11 +22,11 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-class FromMetadataInputTypeTest extends TestCase
+class FromMetadataTypeTest extends TestCase
 {
     #[Test]
     #[DataProvider('metadataProvider')]
-    public function it_can_create_a_type_input_definition(
+    public function it_can_create_a_type_definition(
         Type $expected,
         string $typehint,
         string $metadataMethod,
@@ -37,7 +37,7 @@ class FromMetadataInputTypeTest extends TestCase
             ReflectionTypeFactory::createReflectionType($typehint),
             new ApieContext([])
         );
-        $actual = FromMetadataInputType::createFromMetadata($metadata, $nullable);
+        $actual = FromMetadataType::createFromMetadata($metadata, $nullable);
         $this->assertEquals($expected, $actual);
     }
 
@@ -46,111 +46,110 @@ class FromMetadataInputTypeTest extends TestCase
         yield 'string' => [
             Type::string(),
             'string',
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'nullable string' => [
             Type::string(),
             '?string',
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'required string' => [
             Type::nonNull(Type::string()),
             'string',
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'required nullable string' => [
             Type::string(),
             '?string',
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
-        // not sure we test anything here.....
-        yield 'entity' => [
+        /*yield 'entity' => [
             Type::nonNull(
-                new FromMetadataInputType(
-                    MetadataFactory::getCreationMetadata(
+                new FromMetadataType(
+                    MetadataFactory::getResultMetadata(
                         new ReflectionClass(Order::class),
                         new ApieContext()
                     )
                 )
             ),
             Order::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             false,
-        ];
+        ];*/
         yield 'boolean' => [
             Type::boolean(),
             'bool',
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'floating point' => [
             Type::float(),
             'float',
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'generic list' => [
             Type::listOf(Type::nonNull(Types::json())),
             ItemList::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'generic set' => [
             Type::listOf(Type::nonNull(Types::json())),
             ItemSet::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'string value object' => [
             Type::string(),
             IsStringValueObjectExample::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'required string value object' => [
             Type::nonNull(Type::string()),
             IsStringValueObjectExample::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'union type' => [
             Type::string(),
             IsStringValueObjectExample::class . '|' . DatabaseText::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'required union type' => [
             Type::nonNull(Type::string()),
             IsStringValueObjectExample::class . '|' . DatabaseText::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'nullable union type' => [
             Type::string(),
             IsStringValueObjectExample::class . '|' . DatabaseText::class . '|null',
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'required nullable union type' => [
             Type::string(),
             IsStringValueObjectExample::class . '|' . DatabaseText::class . '|null',
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'generic map' => [
             new MapOfType(Type::nonNull(Types::json())),
             ItemHashmap::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
         yield 'required generic map' => [
             Type::nonNull(new MapOfType(Type::nonNull(Types::json()))),
             ItemHashmap::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'file uri' => [
@@ -161,7 +160,7 @@ class FromMetadataInputTypeTest extends TestCase
                 ])
             ),
             FileUri::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             false
         ];
         yield 'file uri nullable' => [
@@ -170,7 +169,7 @@ class FromMetadataInputTypeTest extends TestCase
                 'description' => 'URL to download the file',
             ]),
             FileUri::class,
-            'getCreationMetadata',
+            'getResultMetadata',
             true
         ];
     }

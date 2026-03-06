@@ -34,9 +34,13 @@ class GraphqlSchemaFactory
     }
     public function createSchema(ApieContext $apieContext): Schema
     {
+        Types::clear();
+        $query = $this->createQuery($apieContext);
+        $mutations = $this->createMutations($apieContext);
         return new Schema([
-            'query' => $this->createQuery($apieContext),
-            'mutation' => $this->createMutations($apieContext),
+            'query' => $query,
+            'mutation' => $mutations,
+            'types' => Types::getDefinedTypes(),
         ]);
     }
 

@@ -33,6 +33,38 @@ final class Types
     {
     }
 
+    public static function clear()
+    {
+        self::$json = null;
+        self::$null = null;
+        self::$createMeta = [];
+        self::$modifyMeta = [];
+        self::$methodCallMeta = [];
+        self::$resultMeta = [];
+        self::$created = [];
+    }
+
+    public static function getDefinedTypes(): array
+    {
+        $list = [
+            ...self::$created,
+        ];
+        foreach (self::$createMeta as $meta) {
+            $list[$meta->name] = $meta;
+        }
+        foreach (self::$modifyMeta as $meta) {
+            $list[$meta->name] = $meta;
+        }
+        foreach (self::$methodCallMeta as $meta) {
+            $list[$meta->name] = $meta;
+        }
+        foreach (self::$resultMeta as $meta) {
+            $list[$meta->name] = $meta;
+        }
+        ksort($list);
+        return $list;
+    }
+
     private static function apieContext(): ApieContext
     {
         return new ApieContext([
