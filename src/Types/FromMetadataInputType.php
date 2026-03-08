@@ -6,6 +6,7 @@ use Apie\Core\Metadata\MetadataInterface;
 use Apie\Core\ValueObjects\Utils;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\Type;
 use ReflectionAttribute;
 
 class FromMetadataInputType extends InputObjectType
@@ -36,8 +37,12 @@ class FromMetadataInputType extends InputObjectType
                 }
             }
         }
+        if (empty($config['fields'])) {
+            $config['fields']['_'] = [
+                'type' => Type::string(),
+                'description' => 'This is a dummy field, because GraphQL does not allow empty input types.',
+            ];
+        }
         parent::__construct($config);
     }
-
-
 }

@@ -6,6 +6,7 @@ use Apie\Core\Metadata\MetadataInterface;
 use Apie\Core\ValueObjects\Utils;
 use Apie\Graphql\Concerns\CreatesFromMeta;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use ReflectionAttribute;
 
 class FromMetadataType extends ObjectType
@@ -33,6 +34,12 @@ class FromMetadataType extends ObjectType
                     'type' => self::createFromField($field),
                 ];
             }
+        }
+        if (empty($config['fields'])) {
+            $config['fields']['_'] = [
+                'type' => Type::string(),
+                'description' => 'This is a dummy field, because GraphQL does not allow empty input types.',
+            ];
         }
         parent::__construct($config);
     }

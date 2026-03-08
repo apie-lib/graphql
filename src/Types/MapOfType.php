@@ -15,7 +15,7 @@ use GraphQL\Type\Schema;
 /**
  * Graphql mapping for ItemHashmap.
  */
-class MapOfType extends ScalarType implements WrappingType, InputType, OutputType, NullableType
+class MapOfType extends ScalarType implements InputType, OutputType, NullableType
 {
     /**
      * @var Type|callable
@@ -32,9 +32,10 @@ class MapOfType extends ScalarType implements WrappingType, InputType, OutputTyp
     public function __construct($type)
     {
         $this->wrappedType = $type;
+        $named = Type::getNamedType($type);
         parent::__construct([
-            'name' => 'MapOf' . (is_callable($type) ? md5(static::class) : $type->toString()),
-            'description' => 'A map/dictionary/hashmap where the keys are strings and the values are of type ' . (is_callable($type) ? '<dynamic>' : $type->toString()),
+            'name' => 'MapOf' . $named->name,
+            'description' => 'A map/dictionary/hashmap where the keys are strings and the values are of type ' . $named->name,
         ]);
     }
 
