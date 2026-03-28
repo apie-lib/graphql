@@ -74,12 +74,20 @@ final class Types
 
     public static function createSingleton(string $typeName, callable $factory): Type
     {
-        return self::$created[$typeName] ??= $factory(self::apieContext());
+        if (isset(self::$created[$typeName])) {
+            return self::$created[$typeName];
+        }
+        self::$created[$typeName] = self::json();
+        return self::$created[$typeName] = $factory(self::apieContext());
     }
 
     public static function createMeta(\ReflectionClass $class): FromMetadataInputType
     {
-        return self::$createMeta[$class->name] ??= new FromMetadataInputType(
+        if (isset(self::$createMeta[$class->name])) {
+            return self::$createMeta[$class->name];
+        }
+        self::$createMeta[$class->name] = self::json();
+        return self::$createMeta[$class->name] = new FromMetadataInputType(
             MetadataFactory::getCreationMetadata($class, self::apieContext()),
             '_create'
         );
@@ -88,7 +96,11 @@ final class Types
     public static function methodCallMeta(\ReflectionMethod $method): FromMetadataInputType
     {
         $key = $method->getDeclaringClass()->name . '::' . $method->name;
-        return self::$methodCallMeta[$key] ??= new FromMetadataInputType(
+        if (isset(self::$methodCallMeta[$key])) {
+            return self::$methodCallMeta[$key];
+        }
+        self::$methodCallMeta[$key] = self::json();
+        return self::$methodCallMeta[$key] = new FromMetadataInputType(
             MetadataFactory::getMethodMetadata($method, self::apieContext()),
             'Run' . ucfirst($method->name)
         );
@@ -97,7 +109,11 @@ final class Types
 
     public static function modifyMeta(\ReflectionClass $class): FromMetadataInputType
     {
-        return self::$modifyMeta[$class->name] ??= new FromMetadataInputType(
+        if (isset(self::$modifyMeta[$class->name])) {
+            return self::$modifyMeta[$class->name];
+        }
+        self::$modifyMeta[$class->name] = self::json();
+        return self::$modifyMeta[$class->name] = new FromMetadataInputType(
             MetadataFactory::getModificationMetadata($class, self::apieContext()),
             '_modify'
         );
@@ -115,7 +131,13 @@ final class Types
 
     public static function displayMeta(\ReflectionClass $class): FromMetadataType
     {
-        return self::$resultMeta[$class->name] ??= new FromMetadataType(
+        if (isset(self::$resultMeta[$class->name])) {
+            return self::$resultMeta[$class->name];
+        }
+
+        self::$resultMeta[$class->name] = self::json();
+
+        return self::$resultMeta[$class->name] = new FromMetadataType(
             MetadataFactory::getResultMetadata($class, self::apieContext())
         );
     }
