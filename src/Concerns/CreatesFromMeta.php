@@ -14,10 +14,10 @@ use Apie\Core\Utils\ConverterUtils;
 use Apie\Core\ValueObjects\Interfaces\ValueObjectInterface;
 use Apie\Core\ValueObjects\Utils;
 use Apie\Graphql\Types;
+use Apie\Graphql\Types\EnumConversionType;
 use Apie\Graphql\Types\FromMetadataInputType;
 use Apie\Graphql\Types\MapOfType;
 use Apie\TypeConverter\ReflectionTypeFactory;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
@@ -34,9 +34,10 @@ trait CreatesFromMeta
         if ($options === null) {
             return null;
         }
+        $prefix = $options->hasIntegerKeys() ? 'p' : '';
         $enumValues = [];
         foreach ($options as $option) {
-            $enumValues[$option->name] = ['value' => $option->value, 'description' => $option->description];
+            $enumValues[$prefix . $option->name] = ['_meta' => ['x-prefix' => $prefix], 'name' => $prefix . $option->name, 'value' => $option->value, 'description' => $option->description ?? $option->name];
         }
         return $enumValues;
     }
@@ -71,12 +72,13 @@ trait CreatesFromMeta
 
         $class = $metadata->toClass();
         $options = self::createValueOptions($metadata);
-        if ($options !== null && $class) {
+        if (!empty($options) && $class) {
             $resourceName = Utils::getDisplayNameForValueObject($class);
-            $result = Types::createSingleton($resourceName, function () use ($resourceName, $options) {
-                return new EnumType([
+            $result = Types::createSingleton($resourceName, function () use ($class, $resourceName, $options) {
+                return new EnumConversionType([
                     'name' => $resourceName,
                     'values' => $options,
+                    'typehint' => $class->name,
                 ]);
             });
             if ($nullable) {
