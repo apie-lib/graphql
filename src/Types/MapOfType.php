@@ -56,7 +56,7 @@ class MapOfType extends ScalarType implements InputType, OutputType, NullableTyp
         return $res;
     }
 
-    public function parseLiteral($valueNode, array $variables = null): mixed
+    public function parseLiteral($valueNode, ?array $variables = null): mixed
     {
         return $valueNode->value;
     }
