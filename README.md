@@ -14,4 +14,18 @@ This package is part of the [Apie](https://github.com/apie-lib) library.
 The code is maintained in a monorepo, so PR's need to be sent to the [monorepo](https://github.com/apie-lib/apie-lib-monorepo/pulls)
 
 ## Documentation
-This package is used internally in Apie or no documentation is available right now
+GraphQL support for exposing Apie resources and metadata through `webonyx/graphql-php`.
+
+### Standalone usage
+Install it with:
+```bash
+composer require apie/graphql
+```
+
+Build a schema with `Apie\Graphql\Factories\GraphqlSchemaFactory` from an `Apie\Common\ActionDefinitionProvider`, and handle requests with `Apie\Graphql\Controllers\GraphqlController`. `GraphqlPlaygroundController` serves an interactive playground, and `DownloadFileController` streams file responses returned by resolvers. The package depends on an Apie persistence layer and domain objects; it does not create those objects for you.
+
+### Symfony integration
+Via `apie/apie-bundle`, `graphql.yaml` is loaded automatically and registers the GraphQL route definition provider, schema factory, and controllers as tagged Symfony controllers. The `apie.graphql.base_url` configuration key sets the base URL used by the playground.
+
+### Laravel integration
+Via `apie/laravel-apie`, the generated `Apie\Graphql\GraphqlServiceProvider` is auto-registered and wires the same schema factory and controllers into the Laravel container.
